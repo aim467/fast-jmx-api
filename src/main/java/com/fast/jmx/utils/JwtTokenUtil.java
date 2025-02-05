@@ -4,6 +4,7 @@ package com.fast.jmx.utils;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.StrUtil;
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import org.slf4j.Logger;
@@ -51,8 +52,8 @@ public class JwtTokenUtil {
                     .setSigningKey(secret)
                     .parseClaimsJws(token)
                     .getBody();
-        } catch (Exception e) {
-            LOGGER.info("JWT格式验证失败:{}", token);
+        } catch (ExpiredJwtException e) {
+            LOGGER.info("JWT格式验证失败:{}, 原因: {}", token, e.getMessage());
         }
         return claims;
     }
@@ -96,6 +97,9 @@ public class JwtTokenUtil {
      */
     public boolean isTokenExpired(String token) {
         Date expiredDate = getExpiredDateFromToken(token);
+        if (expiredDate == null) {
+            return true;
+        }
         return expiredDate.before(new Date());
     }
 
@@ -104,6 +108,9 @@ public class JwtTokenUtil {
      */
     private Date getExpiredDateFromToken(String token) {
         Claims claims = getClaimsFromToken(token);
+        if (claims == null) {
+            return null;
+        }
         return claims.getExpiration();
     }
 

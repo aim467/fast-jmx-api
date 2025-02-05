@@ -22,32 +22,36 @@ public class LoginInterceptor implements HandlerInterceptor {
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
         String token = request.getHeader("Authorization");
 
-        if (!StringUtils.hasText(token)) {
-            rewriteResponse(response, "{\"code\":401,\"msg\":\"token 无效\"}");
+        if (!StringUtils.hasText(token) || !token.startsWith("Bearer ")) {
+            handleInvalidToken(response);
             return false;
         }
 
-        if (FastJmxCache.tokenMap.get(token.replace("Bearer ", "")) == null) {
-            rewriteResponse(response, "{\"code\":401,\"msg\":\"token 无效\"}");
+        token = token.replace("Bearer ", "");
+
+        if (FastJmxCache.tokenMap.get(token) == null) {
+            handleInvalidToken(response);
             return false;
         }
 
-
+        // isTokenExpired 可能返回 null
         if (jwtTokenUtil.isTokenExpired(token)) {
             FastJmxCache.tokenMap.remove(token);
             rewriteResponse(response, "{\"code\":401,\"msg\":\"token 过期\"}");
             return false;
         }
 
-
-        boolean validated = jwtTokenUtil.validateToken(token, "admin");
-        if (!validated) {
-            rewriteResponse(response, "{\"code\":401,\"msg\":\"token 无效\"}");
+        if (!jwtTokenUtil.validateToken(token, "admin")) {
+            handleInvalidToken(response);
             return false;
         }
+
         return true;
     }
 
+    private void handleInvalidToken(HttpServletResponse response) throws Exception {
+        rewriteResponse(response, "{\"code\":401,\"msg\":\"token 无效\"}");
+    }
 
     public void rewriteResponse(HttpServletResponse response, String content) throws Exception {
         response.setCharacterEncoding("UTF-8");

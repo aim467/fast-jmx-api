@@ -237,17 +237,6 @@ public class SystemInfoUtil {
         osRuntimeInfo.setSwapTotalMemory(globalMemory.getVirtualMemory().getSwapTotal());
         //已用虚拟内存
         osRuntimeInfo.setSwapUsedMemory(globalMemory.getVirtualMemory().getSwapUsed());
-//        //磁盘信息
-//        osRuntimeInfo.setDisksList(getDisksList());
-//        //磁盘读取速率
-//        Map<String, Double> diskIo = getDiskIo();
-//        double diskReadRate = diskIo.get("diskReadRate");
-//        osRuntimeInfo.setDiskReadRate(diskReadRate);
-//        //磁盘写入速率
-//        double diskWriteRate = diskIo.get("diskWriteRate");
-//        osRuntimeInfo.setDiskWriteRate(diskWriteRate);
-//        //网卡信息
-//        osRuntimeInfo.setNetworkList(getNetworkInfo());
         return osRuntimeInfo;
     }
 
