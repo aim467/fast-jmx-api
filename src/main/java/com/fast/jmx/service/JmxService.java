@@ -69,6 +69,7 @@ public class JmxService {
         } catch (IOException e) {
             throw new FastJmxException("mbean 连接创建失败");
         }
+        FastJmxCache.monitorMap.put(monitor.getMonitorId(), monitor);
         FastJmxCache.connectionMap.put(monitor.getMonitorId(), mbsc);
     }
 
