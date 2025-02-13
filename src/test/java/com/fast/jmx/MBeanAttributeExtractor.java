@@ -5,7 +5,6 @@ import com.fast.jmx.domain.MBeanNode;
 import com.sun.tools.attach.VirtualMachine;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.StringUtils;
-import sun.management.ConnectorAddressLink;
 
 import javax.management.MBeanAttributeInfo;
 import javax.management.MBeanInfo;
@@ -26,7 +25,7 @@ public class MBeanAttributeExtractor {
         try {
             String pid = "9400";
             VirtualMachine attach = VirtualMachine.attach(pid);
-            String address = ConnectorAddressLink.importFrom(Integer.valueOf(pid));
+            String address = attach.getAgentProperties().getProperty("com.sun.management.jmxremote.localConnectorAddress");
             System.out.println("connect address is: " + address);
             if (address == null) {
                 address = attach.startLocalManagementAgent();

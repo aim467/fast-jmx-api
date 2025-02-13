@@ -6,16 +6,17 @@ import com.fast.jmx.exception.FastJmxException;
 import com.sun.tools.attach.AttachNotSupportedException;
 import com.sun.tools.attach.VirtualMachine;
 import com.sun.tools.attach.VirtualMachineDescriptor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.util.DigestUtils;
 import org.springframework.util.StringUtils;
-import sun.management.ConnectorAddressLink;
 
 import javax.annotation.Resource;
 import java.io.IOException;
 import java.util.List;
 
 @Service
+@Slf4j
 public class VmService {
 
     @Resource
@@ -40,12 +41,14 @@ public class VmService {
         VirtualMachine attach;
         try {
             attach = VirtualMachine.attach(monitor.getPid());
-        } catch (AttachNotSupportedException | IOException e) {
+        } catch (IOException | AttachNotSupportedException e) {
             throw new FastJmxException("附着进程失败");
         }
         String address;
+
         try {
-            address = ConnectorAddressLink.importFrom(Integer.parseInt(monitor.getPid()));
+            // 获取 JVM 的 MBeanServer 地址
+            address = attach.getAgentProperties().getProperty("com.sun.management.jmxremote.localConnectorAddress");
             if (!StringUtils.hasText(address)) {
                 address = attach.startLocalManagementAgent();
             }
